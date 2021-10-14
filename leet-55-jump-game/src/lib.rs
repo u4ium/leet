@@ -1,7 +1,7 @@
+struct Solution {}
+
 use std::cmp::{max, min};
 use std::convert::TryInto;
-
-struct Solution {}
 
 impl Solution {
     /// Given an integer array nums,
@@ -10,19 +10,22 @@ impl Solution {
     /// return true if you can reach the last index, or false otherwise.
     ///
     /// REQ:
-    ///     - 1 <= nums.length <= 104
-    ///     - 0 <= nums[i] <= 105
+    ///     - 1 <= nums.length <= 10^4
+    ///     - 0 <= nums[i] <= 10^5
     pub fn can_jump(nums: Vec<i32>) -> bool {
-        let length = nums.len();
+        let last_index = nums.len() - 1;
         let mut last_reachable = 0;
         for (num_index, &num) in nums.iter().enumerate() {
             if num_index > last_reachable {
                 break;
             }
+            if last_reachable == last_index {
+                break;
+            }
             let jump_size: usize = num.try_into().unwrap();
-            last_reachable = max(last_reachable, min(num_index + jump_size, length - 1));
+            last_reachable = max(last_reachable, min(num_index + jump_size, last_index));
         }
-        last_reachable == length - 1
+        last_reachable == last_index
     }
 }
 
