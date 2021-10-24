@@ -52,10 +52,6 @@ fn deserialize_helper(data: &[u8]) -> TreeNodeRef {
     }
 }
 
-/**
- * `&self` means the method takes an immutable reference.
- * If you need a mutable reference, change it to `&mut self` instead.
- */
 impl Codec {
     fn new() -> Self {
         Codec {}
@@ -69,12 +65,7 @@ impl Codec {
         deserialize_helper(data.as_bytes())
     }
 }
-/**
- * Your Codec object will be instantiated and called as such:
- * let obj = Codec::new();
- * let data: String = obj.serialize(strs);
- * let ans: Option<Rc<RefCell<TreeNode>>> = obj.deserialize(data);
- */
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -94,7 +85,7 @@ mod tests {
 
     #[test]
     fn test_example_1_deserialize() {
-        let serialized = String::from("(1,(2,,),(3,(,4,,),(5,,)))");
+        let serialized = String::from("(1,(2,,),(3,(4,,),(5,,)))");
         let tree = Tree::from(&[Some(1), Some(2), Some(3), None, None, Some(4), Some(5)][..]);
         let codec = Codec::new();
         assert_eq!(tree.root, codec.deserialize(serialized));
