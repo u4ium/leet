@@ -1,3 +1,5 @@
+use std::iter::FromIterator;
+
 #[derive(Default)]
 struct MinStack {
     data: Vec<i32>,
@@ -26,14 +28,18 @@ impl MinStack {
     }
 }
 
-/**
- * Your MinStack object will be instantiated and called as such:
- * let obj = MinStack::new();
- * obj.push(val);
- * obj.pop();
- * let ret_3: i32 = obj.top();
- * let ret_4: i32 = obj.get_min();
- */
+impl FromIterator<i32> for MinStack {
+    fn from_iter<I>(iterable: I) -> Self
+    where
+        I: IntoIterator<Item = i32>,
+    {
+        let mut stack = MinStack::new();
+        for elem in iterable {
+            stack.push(elem);
+        }
+        stack
+    }
+}
 
 #[cfg(test)]
 mod tests {
@@ -54,5 +60,13 @@ mod tests {
         minStack.pop();
         assert_eq!(0, minStack.top());
         assert_eq!(-2, minStack.get_min());
+    }
+
+    #[test]
+    fn test_initialize() {
+        let mut stack = MinStack::from_iter(1..5);
+        for v in (1..5).rev() {
+            assert_eq!(v, stack.pop())
+        }
     }
 }
