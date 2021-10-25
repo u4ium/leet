@@ -20,13 +20,40 @@ impl TreeNode {
 }
 
 use std::cell::RefCell;
-use std::ops::Deref;
 use std::rc::Rc;
-impl Solution {
-    pub fn count_nodes(root: Option<Rc<RefCell<TreeNode>>>) -> i32 {}
+type TreeNodeRef = Option<Rc<RefCell<TreeNode>>>;
+
+fn binary_tree_size(node: &TreeNodeRef) -> usize {
+    match node {
+        Some(node_ref) => {
+            1   // recurse
+                + binary_tree_size(&node_ref.borrow().left)
+                + binary_tree_size(&node_ref.borrow().right)
+        }
+        None => 0, // base-case
+    }
 }
 
-type TreeNodeRef = Option<Rc<RefCell<TreeNode>>>;
+impl Solution {
+    pub fn count_nodes(root: Option<Rc<RefCell<TreeNode>>>) -> i32 {
+        match root {
+            Some(node) => {
+                let mut stack = vec![root.as_ref()];
+                let mut nodes = 0;
+                while let Some(Some(node)) = stack.pop() {
+                    nodes += 1;
+
+                    let node = node.borrow();
+                    stack.push(node.left.as_ref());
+                    stack.push(node.right.as_ref());
+                }
+                nodes
+            }
+            None => 0,
+        }
+    }
+}
+
 struct Tree {
     root: TreeNodeRef,
 }
@@ -63,7 +90,6 @@ mod tests {
 
     #[test]
     fn example_1() {
-        assert_eq!(2 + 2, 4);
         let input = Tree::from(&[Some(1), Some(2), Some(3), Some(4), Some(5), Some(6)][..]);
         let output = 6;
         assert_eq!(output, Solution::count_nodes(input.root));
@@ -71,7 +97,6 @@ mod tests {
 
     #[test]
     fn example_2() {
-        assert_eq!(2 + 2, 4);
         let input = Tree::from(&[][..]);
         let output = 0;
         assert_eq!(output, Solution::count_nodes(input.root));
@@ -79,7 +104,6 @@ mod tests {
 
     #[test]
     fn example_3() {
-        assert_eq!(2 + 2, 4);
         let input = Tree::from(&[Some(1)][..]);
         let output = 1;
         assert_eq!(output, Solution::count_nodes(input.root));
