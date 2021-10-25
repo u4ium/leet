@@ -36,21 +36,7 @@ fn binary_tree_size(node: &TreeNodeRef) -> usize {
 
 impl Solution {
     pub fn count_nodes(root: Option<Rc<RefCell<TreeNode>>>) -> i32 {
-        match root {
-            Some(node) => {
-                let mut stack = vec![root.as_ref()];
-                let mut nodes = 0;
-                while let Some(Some(node)) = stack.pop() {
-                    nodes += 1;
-
-                    let node = node.borrow();
-                    stack.push(node.left.as_ref());
-                    stack.push(node.right.as_ref());
-                }
-                nodes
-            }
-            None => 0,
-        }
+        binary_tree_size(&root) as i32
     }
 }
 
