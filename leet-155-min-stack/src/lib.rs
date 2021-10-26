@@ -12,19 +12,30 @@ impl MinStack {
     }
 
     fn push(&mut self, val: i32) {
-        todo!();
+        if let Some(&minimum) = self.minimums.last() {
+            if val <= minimum {
+                self.minimums.push(val);
+            }
+        } else {
+            self.minimums.push(val);
+        }
+        self.data.push(val);
     }
 
     fn pop(&mut self) {
-        todo!();
+        let popped = self.data.pop().unwrap();
+        let minimum = self.minimums.last().unwrap();
+        if popped == *minimum {
+            self.minimums.pop().unwrap();
+        }
     }
 
     fn top(&self) -> i32 {
-        todo!();
+        *self.data.last().unwrap()
     }
 
     fn get_min(&self) -> i32 {
-        todo!();
+        *self.minimums.last().unwrap()
     }
 }
 
@@ -66,7 +77,8 @@ mod tests {
     fn test_initialize() {
         let mut stack = MinStack::from_iter(1..5);
         for v in (1..5).rev() {
-            assert_eq!(v, stack.pop())
+            assert_eq!(v, stack.top());
+            stack.pop();
         }
     }
 }
