@@ -1,7 +1,6 @@
 struct Solution {}
 
 use std::convert::TryInto;
-use std::iter::repeat;
 
 impl Solution {
     /// Given an array nums with n objects colored red, white, or blue,
@@ -18,6 +17,19 @@ impl Solution {
     ///     - nums[i] is 0, 1, or 2.
     pub fn sort_colors(nums: &mut Vec<i32>) {
         // bucket sort
+        let mut counts = [0; 3];
+        for &num in nums.iter() {
+            let colour: usize = num.try_into().unwrap();
+            counts[colour] += 1;
+        }
+
+        let mut index = 0;
+        for (colour, &count) in counts.iter().enumerate() {
+            for _ in 0..count {
+                nums[index] = colour.try_into().unwrap();
+                index += 1;
+            }
+        }
     }
 }
 
