@@ -33,8 +33,6 @@ impl Solution {
     }
 }
 
-use std::iter::FromIterator;
-
 type TreeNodeCell = Option<Rc<RefCell<TreeNode>>>;
 struct Tree {
     root: TreeNodeCell,
