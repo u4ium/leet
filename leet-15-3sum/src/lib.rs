@@ -15,6 +15,19 @@ mod tests {
         assert_eq!(2 + 2, 4);
     }
 
+    fn check_solution(input: Vec<i32>, output: Vec<Vec<i32>>) {
+        let mut test_output = Solution::three_sum(input);
+        assert_eq!(test_output.len(), output.len());
+        let mut output = output;
+        for index in 0..output.len() {
+            output[index].sort();
+            test_output[index].sort();
+        }
+        output.sort();
+        test_output.sort();
+        assert_eq!(output, test_output);
+    }
+
     #[test]
     fn example_1() {
         let input = vec![-1, 0, 1, 2, -1, -4];
