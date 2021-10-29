@@ -23,6 +23,17 @@ impl From<i32> for Cell {
     }
 }
 
+pub enum RottingState {
+    Rotting,
+    Stuck,
+    Done,
+}
+
+pub enum RotResult {
+    Rot(RottingState),
+    Complete,
+}
+
 pub struct Grid(Vec<Vec<Cell>>);
 
 impl From<Vec<Vec<i32>>> for Grid {
@@ -35,60 +46,77 @@ impl From<Vec<Vec<i32>>> for Grid {
     }
 }
 
-impl Grid {
-    /// Return true iff at least one orange in the grid is still fresh.
-    pub fn has_fresh(&self) -> bool {
-        for row in self.0.iter() {
-            for cell in row.iter() {
-                if let Orange(Fresh) = cell {
-                    return true;
-                }
-            }
-        }
-        false
-    }
+struct Coordinate {
+    r: usize,
+    c: usize,
+}
 
+impl Grid {
     /// Convert fresh Oranges that are immediately adjacent to rotten ones to rotten.
     ///
     /// Return true iff at least one orange is converted.
-    pub fn rot(&mut self) -> bool {
+    pub fn rot(&mut self) -> RotResult {
+        let mut num_fresh = 0;
         let mut rotten = vec![];
         for (r, row) in self.0.iter().enumerate() {
             for (c, cell) in row.iter().enumerate() {
-                if let Orange(Rotten) = cell {
-                    rotten.push([r, c]);
+                if let Orange(freshness) = cell {
+                    match freshness {
+                        Rotten => rotten.push(Coordinate { r, c }),
+                        Fresh => num_fresh += 1,
+                    }
                 }
             }
         }
 
-        let mut found_fresh_adjacent = false;
-        for [r, c] in rotten {
-            for [n_r, n_c] in self.get_next_cells([r, c]) {
-                let next_orange = &mut self.0[n_r][n_c];
+        if num_fresh == 0 {
+            return RotResult::Complete;
+        }
+
+        let mut num_fresh_rotted = 0;
+        for coordinate in rotten {
+            for next_coordinate in self.get_next_cells(coordinate) {
+                let next_orange = &mut self.0[next_coordinate.r][next_coordinate.c];
                 if let Orange(Fresh) = next_orange {
                     *next_orange = Orange(Rotten);
-                    found_fresh_adjacent = true;
+                    num_fresh_rotted += 1;
                 }
             }
         }
 
-        found_fresh_adjacent
+        RotResult::Rot(match num_fresh_rotted {
+            0 => RottingState::Stuck,
+            x if x == num_fresh => RottingState::Done,
+            _ => RottingState::Rotting,
+        })
     }
 
     #[inline]
-    fn get_next_cells(&self, current: [usize; 2]) -> Vec<[usize; 2]> {
+    fn get_next_cells(&self, current: Coordinate) -> Vec<Coordinate> {
         let mut result = vec![];
-        if current[0] > 0 {
-            result.push([current[0] - 1, current[1]]);
+        if current.r > 0 {
+            result.push(Coordinate {
+                r: current.r - 1,
+                ..current
+            });
         }
-        if current[0] < self.0.len() - 1 {
-            result.push([current[0] + 1, current[1]]);
+        if current.r < self.0.len() - 1 {
+            result.push(Coordinate {
+                r: current.r + 1,
+                ..current
+            });
         }
-        if current[1] > 0 {
-            result.push([current[0], current[1] - 1]);
+        if current.c > 0 {
+            result.push(Coordinate {
+                c: current.c - 1,
+                ..current
+            });
         }
-        if current[1] < self.0[0].len() - 1 {
-            result.push([current[0], current[1] + 1]);
+        if current.c < self.0[0].len() - 1 {
+            result.push(Coordinate {
+                c: current.c + 1,
+                ..current
+            });
         }
         result
     }
@@ -110,13 +138,14 @@ impl Solution {
     ///     - 1 <= m, n <= 10
     ///     - grid[i][j] is 0, 1, or 2.
     pub fn oranges_rotting(grid: Vec<Vec<i32>>) -> i32 {
-        let mut grid = Grid::from(grid);
+        let mut oranges = Grid::from(grid);
         let mut minutes = 0;
-        while grid.has_fresh() {
-            if !grid.rot() {
-                return -1;
+        while let RotResult::Rot(rotting_state) = oranges.rot() {
+            match rotting_state {
+                RottingState::Stuck => return -1,
+                RottingState::Done => return minutes + 1,
+                RottingState::Rotting => minutes += 1,
             }
-            minutes += 1;
         }
         minutes
     }
