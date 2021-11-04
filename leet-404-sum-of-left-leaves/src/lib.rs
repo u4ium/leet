@@ -43,27 +43,20 @@ impl From<&[Option<i32>]> for Tree {
     }
 }
 
-impl TreeNode {
-    #[inline]
-    fn is_leaf(&self) -> bool {
-        self.left.is_none() && self.right.is_none()
-    }
-}
-
 use std::cell::RefCell;
 use std::rc::Rc;
 impl Solution {
     pub fn sum_of_left_leaves(root: Option<Rc<RefCell<TreeNode>>>) -> i32 {
         fn helper(node: &Option<Rc<RefCell<TreeNode>>>, is_left_child: bool) -> i32 {
             match node {
-                Some(node_cell) => {
-                    let node_ref = node_cell.borrow();
-                    if is_left_child && node_ref.is_leaf() {
-                        node_ref.val
-                    } else {
-                        helper(&node_ref.left, true) + helper(&node_ref.right, false)
-                    }
-                }
+                Some(node_cell) => match &*node_cell.borrow() {
+                    TreeNode {
+                        val,
+                        left: None,
+                        right: None,
+                    } if is_left_child => *val,
+                    TreeNode { left, right, .. } => helper(left, true) + helper(right, false),
+                },
                 None => 0,
             }
         }
