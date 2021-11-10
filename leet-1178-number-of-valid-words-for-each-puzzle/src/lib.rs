@@ -1,15 +1,15 @@
 struct Solution {}
 
 pub mod bitset;
-use bitset::BitSet;
+use bitset::LetterBitSet;
 
 use std::collections::HashMap;
 
 impl Solution {
     pub fn find_num_of_valid_words(words: Vec<String>, puzzles: Vec<String>) -> Vec<i32> {
-        let mut letter_permutation_counts: HashMap<BitSet, usize> = HashMap::new();
+        let mut letter_permutation_counts: HashMap<LetterBitSet, i32> = HashMap::new();
         for word in words.into_iter() {
-            let letters: BitSet = word.bytes().collect();
+            let letters = word.bytes().collect();
             *letter_permutation_counts.entry(letters).or_default() += 1;
         }
         puzzles
@@ -17,7 +17,7 @@ impl Solution {
             .map(|word| {
                 let first = word.bytes().next().unwrap();
                 word.bytes()
-                    .collect::<BitSet>()
+                    .collect::<LetterBitSet>()
                     .subsets()
                     .filter_map(|subset| {
                         if !subset.contains(first) {
@@ -25,7 +25,7 @@ impl Solution {
                         }
                         letter_permutation_counts.get(&subset)
                     })
-                    .sum::<usize>() as i32
+                    .sum()
             })
             .collect()
     }
