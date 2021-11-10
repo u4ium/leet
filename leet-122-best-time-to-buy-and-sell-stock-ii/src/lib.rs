@@ -2,7 +2,10 @@ struct Solution {}
 
 impl Solution {
     pub fn max_profit(prices: Vec<i32>) -> i32 {
-        0
+        (1..prices.len())
+            .map(|i| prices[i] - prices[i - 1])
+            .filter(|&i| i > 0)
+            .sum()
     }
 }
 
