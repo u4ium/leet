@@ -2,18 +2,24 @@ struct Solution {}
 
 impl Solution {
     pub fn daily_temperatures(temperatures: Vec<i32>) -> Vec<i32> {
-        temperatures
-            .iter()
-            .enumerate()
-            .map(|(index, &current_temperature)| {
-                for (days, &future_temperature) in temperatures.iter().skip(index + 1).enumerate() {
-                    if future_temperature > current_temperature {
-                        return (days + 1) as i32;
-                    }
+        let mut result = vec![0; temperatures.len()];
+        let mut stack: Vec<usize> = Vec::new();
+
+        for (index, &temperature) in temperatures.iter().enumerate() {
+            while {
+                match stack.last() {
+                    Some(&previous_day) if temperatures[previous_day] < temperature => true,
+                    _ => false,
                 }
-                0
-            })
-            .collect()
+            } {
+                let previous_day = stack.pop().unwrap();
+                result[previous_day] = index - previous_day;
+            }
+
+            stack.push(index)
+        }
+
+        result.into_iter().map(|v| v as i32).collect()
     }
 }
 
