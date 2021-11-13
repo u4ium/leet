@@ -38,7 +38,7 @@ mod traits;
 /// }
 /// ```
 ///
-/// ## Using indices
+/// ## Using Indices
 /// ```rust
 /// # use linked_list::LinkedList;
 /// const IRRATIONALS: [f64; 3] = [1.61803, 2.71828, 3.14159];
@@ -53,7 +53,7 @@ pub struct LinkedList<T> {
     head: LinkedListNodeRef<T>,
     /// The current length of this LinkedList
     length: usize,
-    // TODO: add tail pointer (using Rc) to enable O(1) push
+    // TODO: add tail pointer (using Rc) to enable O(1) push/pop from tail
 }
 
 // TODO: add size check to prevent usize overflow?

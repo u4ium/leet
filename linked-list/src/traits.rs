@@ -1,5 +1,8 @@
-use std::iter::FromIterator;
-use std::ops::{Index, IndexMut};
+use std::{
+    fmt::{self, Display, Formatter},
+    iter::FromIterator,
+    ops::{Index, IndexMut},
+};
 
 use super::*;
 
@@ -56,5 +59,19 @@ impl<T> Extend<T> for LinkedList<T> {
             new_element_count += 1;
         }
         self.length += new_element_count;
+    }
+}
+
+impl<T: Display> Display for LinkedList<T> {
+    fn fmt(&self, f: &mut Formatter) -> Result<(), fmt::Error> {
+        const SEPARATOR: &str = " -> ";
+        write!(
+            f,
+            "[{}]",
+            self.iter()
+                .map(|v| v.to_string())
+                .collect::<Vec<_>>()
+                .join(SEPARATOR)
+        )
     }
 }
