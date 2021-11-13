@@ -2,7 +2,18 @@ struct Solution {}
 
 impl Solution {
     pub fn daily_temperatures(temperatures: Vec<i32>) -> Vec<i32> {
-        todo!()
+        temperatures
+            .iter()
+            .enumerate()
+            .map(|(index, &current_temperature)| {
+                for (days, &future_temperature) in temperatures.iter().skip(index + 1).enumerate() {
+                    if future_temperature > current_temperature {
+                        return (days + 1) as i32;
+                    }
+                }
+                0
+            })
+            .collect()
     }
 }
 
