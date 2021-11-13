@@ -56,8 +56,6 @@ pub struct LinkedList<T> {
     // TODO: add tail pointer (using Rc) to enable O(1) push/pop from tail
 }
 
-// TODO: add size check to prevent usize overflow?
-
 impl<T> LinkedList<T> {
     /// Create new (empty) LinkedList
     #[inline]
@@ -78,6 +76,12 @@ impl<T> LinkedList<T> {
     #[inline]
     pub fn iter(&self) -> LinkedListIterator<T> {
         LinkedListIterator::new(&self.head)
+    }
+
+    /// Return an iterator (of *mutable* references) over the elements in this list
+    #[inline]
+    pub fn iter_mut(&mut self) -> LinkedListIteratorMut<T> {
+        LinkedListIteratorMut::new(self.head.as_mut().map(|n| &mut **n))
     }
 
     /// Add given value to the front of the list

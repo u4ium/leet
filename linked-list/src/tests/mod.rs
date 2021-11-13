@@ -9,6 +9,7 @@ mod index;
 mod index_mut;
 mod into_iterator;
 mod iter;
+mod iter_mut;
 mod pop;
 mod pop_front;
 mod push;
