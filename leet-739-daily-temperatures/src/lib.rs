@@ -3,23 +3,21 @@ struct Solution {}
 impl Solution {
     pub fn daily_temperatures(temperatures: Vec<i32>) -> Vec<i32> {
         let mut result = vec![0; temperatures.len()];
-        let mut stack: Vec<usize> = Vec::new();
+        let mut hottest = 0;
 
-        for (index, &temperature) in temperatures.iter().enumerate() {
-            while {
-                match stack.last() {
-                    Some(&previous_day) if temperatures[previous_day] < temperature => true,
-                    _ => false,
+        for (current_day, &temperature) in temperatures.iter().enumerate().rev() {
+            if temperature >= hottest {
+                hottest = temperature;
+            } else {
+                let mut days = 1;
+                while temperatures[current_day + days as usize] <= temperature {
+                    days += result[current_day + days as usize];
                 }
-            } {
-                let previous_day = stack.pop().unwrap();
-                result[previous_day] = index - previous_day;
+                result[current_day] = days;
             }
-
-            stack.push(index)
         }
 
-        result.into_iter().map(|v| v as i32).collect()
+        result
     }
 }
 
