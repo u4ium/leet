@@ -45,7 +45,7 @@ mod tests {
     #[test]
     fn test_from_iterator_empty() {
         let expect = LinkedList { head: None };
-        let actual = [].iter().cloned().collect::<LinkedList>();
+        let actual: LinkedList = [].iter().cloned().collect();
         assert_eq!(expect, actual);
     }
 
@@ -57,7 +57,7 @@ mod tests {
                 next: None,
             })),
         };
-        let actual = [14].iter().cloned().collect::<LinkedList>();
+        let actual: LinkedList = [14].iter().cloned().collect();
         assert_eq!(expect, actual);
     }
 
@@ -69,7 +69,7 @@ mod tests {
                 next: Some(Box::new(ListNode { val: 4, next: None })),
             })),
         };
-        let actual = [1, 4].into_iter().cloned().collect::<LinkedList>();
+        let actual: LinkedList = [1, 4].iter().cloned().collect();
         assert_eq!(expect, actual);
     }
 }
