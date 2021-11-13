@@ -1,5 +1,7 @@
 use super::*;
 mod equal;
+mod extend;
+mod extend_with_linked_list;
 mod from_iterator;
 mod get;
 mod get_mut;

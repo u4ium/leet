@@ -4,11 +4,11 @@ fn test<T: std::fmt::Debug + PartialEq + Clone, const N: usize, const M: usize>(
     start: [T; N],
     to_add: [T; M],
 ) {
-    let mut list: LinkedList<T> = start.iter().cloned().collect();
-    for value in to_add.iter() {
-        list.push(value.clone());
-    }
     let expect: LinkedList<T> = start.iter().chain(to_add.iter()).cloned().collect();
+    let mut list: LinkedList<T> = start.iter().cloned().collect();
+    for value in to_add {
+        list.push(value);
+    }
     assert_eq!(expect, list);
 }
 
