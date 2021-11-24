@@ -21,9 +21,11 @@ impl DisjointSets {
 
     /// Merge the two disjoint sets of which a and b are members
     pub fn union(&mut self, a: usize, b: usize) {
-        let a = self.find_set_and_compress_path(a);
-        let b = self.find_set_and_compress_path(b);
+        let a = self.find_representative_and_compress_path(a);
+        let b = self.find_representative_and_compress_path(b);
+        // If the representatives of a and b are dissimilar,
         if a != b {
+            // then join the smaller one onto the larger one.
             if self.sizes[a] < self.sizes[b] {
                 self.parents[a] = b;
                 self.sizes[b] += self.sizes[a];
@@ -39,25 +41,30 @@ impl DisjointSets {
         *self.sizes.iter().max().unwrap()
     }
 
-    fn find_set_and_compress_path(&mut self, i: usize) -> usize {
-        // find representative
-        let current = self.find_set(i);
-
-        // path compression to representative
-        let mut j = self.parents[i];
-        while j != current {
-            let next = self.parents[j];
-            self.parents[j] = current;
-            // self.sizes[j] = 1; // unneeded for correctness, but maintains RI
-            j = next;
-        }
-
-        // return representative
-        current
+    /// Find the representative element of this set and point each traversed node directly at it
+    fn find_representative_and_compress_path(&mut self, i: usize) -> usize {
+        let representative = self.find_representative(i);
+        self.compress(i, representative);
+        representative
     }
 
+    /// Perform compression along path from->...->representative
+    ///
+    /// (i.e. point each node along the path directly at the representative)
     #[inline]
-    fn find_set(&self, i: usize) -> usize {
+    fn compress(&mut self, from: usize, representative: usize) {
+        let mut current = self.parents[from];
+        while current != representative {
+            let next = self.parents[current];
+            self.parents[current] = representative;
+            // self.sizes[j] = 1; // unneeded for correctness, but maintains RI
+            current = next;
+        }
+    }
+
+    /// Find the representative element of the set containing i
+    #[inline]
+    fn find_representative(&self, i: usize) -> usize {
         let mut current = i;
         while current != self.parents[current] {
             current = self.parents[current];
@@ -69,7 +76,7 @@ impl DisjointSets {
     pub fn sets(&self) -> Vec<HashSet<usize>> {
         let mut result: HashMap<usize, HashSet<usize>> = HashMap::new();
         for index in 0..self.parents.len() {
-            let representative = self.find_set(index);
+            let representative = self.find_representative(index);
             result.entry(representative).or_default().insert(index);
         }
         result.drain().map(|(_k, v)| v).collect()
