@@ -1,3 +1,5 @@
+use std::ops::{Index, Mul, MulAssign};
+
 pub struct Solution {}
 
 impl Solution {
@@ -31,29 +33,7 @@ impl Solution {
     /// ```
     ///
     pub fn product_except_self(nums: Vec<i32>) -> Vec<i32> {
-        #[inline]
-        /// Return a list of the products of `nums_iterator` up to (but not including) each element
-        fn products_up_to<'a, I: Iterator<Item = &'a i32>>(nums_iterator: I) -> Vec<i32> {
-            let mut product = 1;
-            nums_iterator
-                .map(|n| {
-                    let current_product = product;
-                    product *= n;
-                    current_product
-                })
-                .collect()
-        }
-
-        // Compute all products of the prefixes and suffixes of nums
-        let up_to: Vec<i32> = products_up_to(nums.iter());
-        let back_from: Vec<i32> = products_up_to(nums.iter().rev());
-
-        // Each `product_except_self` is the product of the suffix and prefix
-        let last_index = nums.len() - 1;
-        nums.into_iter()
-            .enumerate()
-            .map(|(i, _n)| up_to[i] * back_from[last_index - i])
-            .collect()
+        nums.product_except_self()
     }
 }
 
@@ -67,4 +47,55 @@ mod tests {
         let expect = vec![4, 2];
         assert_eq!(expect, Solution::product_except_self(nums));
     }
+}
+
+trait MultiplicativeIdentity {
+    fn multiplicative_identity() -> Self;
+}
+
+impl MultiplicativeIdentity for i32 {
+    fn multiplicative_identity() -> Self {
+        1
+    }
+}
+
+trait Productable<T, D>:
+    IntoIterator<Item = T, IntoIter = D> + FromIterator<T> + Index<usize, Output = T> + Clone
+where
+    T: Copy + Mul<Output = T> + MulAssign + MultiplicativeIdentity,
+    D: DoubleEndedIterator<Item = T>,
+{
+    fn product_except_self(&self) -> Self {
+        // Compute all products of the prefixes and suffixes of nums
+        let up_to: Self = Self::products_up_to(self.clone().into_iter());
+        let back_from: Self = Self::products_up_to(self.clone().into_iter().rev())
+            .into_iter()
+            .rev()
+            .collect();
+
+        // Each `product_except_self` is the product of the suffix and prefix
+        self.clone()
+            .into_iter()
+            .enumerate()
+            .map(|(i, _n)| up_to[i] * back_from[i])
+            .collect()
+    }
+
+    #[inline]
+    /// Return a list of the products of `nums_iterator` up to (but not including) each element
+    fn products_up_to<'a, I: Iterator<Item = T>>(nums_iterator: I) -> Self {
+        let mut product = T::multiplicative_identity();
+        nums_iterator
+            .map(|n| {
+                let current_product = product;
+                product *= n;
+                current_product
+            })
+            .collect()
+    }
+}
+
+impl<T> Productable<T, std::vec::IntoIter<T>> for Vec<T> where
+    T: Copy + Mul<Output = T> + MulAssign + MultiplicativeIdentity
+{
 }
