@@ -11,9 +11,29 @@ impl Solution {
     /// ## Constraints
     ///  - `2 <= nums.length <= 10⁵`
     ///  - `-30 <= nums[i] <= 30`
+    ///
+    /// ## Examples
+    ///
+    /// ### Simple
+    /// ```rust
+    /// use leet_238_product_of_array_except_self::Solution;
+    /// let nums = vec![1, 2, 3, 4];
+    /// let expect = vec![24, 12, 8, 6];
+    /// assert_eq!(expect, Solution::product_except_self(nums));
+    /// ```
+    ///
+    /// ### With a zero
+    /// ```rust
+    /// # use leet_238_product_of_array_except_self::Solution;
+    /// let nums = vec![-1, 1, 0, -3, 3];
+    /// let expect = vec![0, 0, 9, 0, 0];
+    /// assert_eq!(expect, Solution::product_except_self(nums));
+    /// ```
+    ///
     pub fn product_except_self(nums: Vec<i32>) -> Vec<i32> {
         #[inline]
-        fn products_not_including<'a, I: Iterator<Item = &'a i32>>(nums_iterator: I) -> Vec<i32> {
+        /// Return a list of the products of `nums_iterator` up to (but not including) each element
+        fn products_up_to<'a, I: Iterator<Item = &'a i32>>(nums_iterator: I) -> Vec<i32> {
             let mut product = 1;
             nums_iterator
                 .map(|n| {
@@ -24,17 +44,15 @@ impl Solution {
                 .collect()
         }
 
-        let up_to: Vec<i32> = products_not_including(nums.iter());
-        let back_from: Vec<i32> = products_not_including(nums.iter().rev());
+        // Compute all products of the prefixes and suffixes of nums
+        let up_to: Vec<i32> = products_up_to(nums.iter());
+        let back_from: Vec<i32> = products_up_to(nums.iter().rev());
 
+        // Each `product_except_self` is the product of the suffix and prefix
         let last_index = nums.len() - 1;
         nums.into_iter()
             .enumerate()
-            .map(|(i, _n)| {
-                let before = up_to[i];
-                let after = back_from[last_index - i];
-                before * after
-            })
+            .map(|(i, _n)| up_to[i] * back_from[last_index - i])
             .collect()
     }
 }
@@ -44,21 +62,9 @@ mod tests {
     use super::Solution;
 
     #[test]
-    fn it_works() {
-        let result = 2 + 2;
-        assert_eq!(result, 4);
-    }
-    #[test]
-    fn example_1() {
-        let nums = vec![1, 2, 3, 4];
-        let expect = vec![24, 12, 8, 6];
-        assert_eq!(expect, Solution::product_except_self(nums));
-    }
-
-    #[test]
-    fn example_2() {
-        let nums = vec![-1, 1, 0, -3, 3];
-        let expect = vec![0, 0, 9, 0, 0];
+    fn two_elements() {
+        let nums = vec![2, 4];
+        let expect = vec![4, 2];
         assert_eq!(expect, Solution::product_except_self(nums));
     }
 }
