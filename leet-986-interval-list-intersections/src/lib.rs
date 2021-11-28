@@ -2,39 +2,51 @@ pub struct Solution {}
 
 use std::cmp::max;
 
+/// A closed interval
+#[derive(Clone, Copy)]
+struct Interval {
+    /// The start of this interval
+    start: i32,
+    /// The end of this interval
+    end: i32,
+}
+
+impl Interval {
+    /// Create a new interval out of a vector of two elements
+    ///
+    /// # Panics
+    /// If `v` does not have two elements
+    fn new(v: Vec<i32>) -> Interval {
+        assert_eq!(v.len(), 2);
+        Interval {
+            start: v[0],
+            end: v[1],
+        }
+    }
+}
+
 impl Solution {
     /// Return the intersection of these two interval lists, given two lists of closed intervals:
-    ///  - firstList, where firstList[i] = [start_i, end_i]
-    ///  - and secondList, where secondList[j] = [start_j, end_j].
+    ///  - `first_list`, where `first_list[i]` = [startᵢ, endᵢ]
+    ///  - and `second_list`, where `second_list[j]` = [startⱼ, endⱼ].
     ///
-    /// Constraints:
-    ///  + firstList.length + secondList.length >= 1
-    ///  + 0 <= firstList.length, secondList.length <= 1000
-    ///  + 0 <= start_i <= end_i <= 10^9
-    ///  + 0 <= start_j <= end_j <= 10^9
-    ///  + Each list of intervals is pairwise disjoint and in sorted order:
-    ///    + end_i < start_(i+1)
-    ///    + end_j < start_(j+1)
+    /// ## Constraints
+    ///  - first_list.length + second_list.length >= 1
+    ///  - 0 <= first_list.length, second_list.length <= 1000
+    ///  - ∀i, 0 <= startᵢ <= endᵢ <= 10⁹
+    ///  - ∀j, 0 <= startⱼ <= endⱼ <= 10⁹
+    ///  - Each list of intervals is pairwise disjoint and in sorted order:
+    ///    - ∀i, endᵢ < startᵢ₊₁
+    ///    - ∀j, endⱼ < startⱼ₊₁
+    ///
+    /// # Panics
+    /// If any interval in `first_list` or `second_list` does not contain two values.
     pub fn interval_intersection(
         first_list: Vec<Vec<i32>>,
         second_list: Vec<Vec<i32>>,
     ) -> Vec<Vec<i32>> {
         // These types exist for naming convenience:
         // (a, b) denote the (first, second)_list respectively
-
-        #[derive(Clone, Copy)]
-        struct Interval {
-            start: i32,
-            end: i32,
-        }
-        impl Interval {
-            fn new(v: Vec<i32>) -> Interval {
-                Interval {
-                    start: v[0],
-                    end: v[1],
-                }
-            }
-        }
 
         struct Iterators<I: Iterator<Item = Interval>> {
             a: I,

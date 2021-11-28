@@ -10,8 +10,12 @@ impl Solution {
                 hottest = temperature;
             } else {
                 let mut days = 1;
-                while temperatures[current_day + days as usize] <= temperature {
-                    days += result[current_day + days as usize];
+                loop {
+                    let previous_day = current_day + days as usize;
+                    if temperatures[previous_day] > temperature {
+                        break;
+                    }
+                    days += result[previous_day];
                 }
                 result[current_day] = days;
             }
