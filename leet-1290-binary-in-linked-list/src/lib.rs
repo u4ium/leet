@@ -65,25 +65,30 @@ mod tests {
         assert_eq!(result, 4);
     }
 
+    #[test]
     fn example_1() {
         let list = LinkedList::from_iter(vec![1, 0, 1]);
         assert_eq!(5, Solution::get_decimal_value(list.head));
     }
+    #[test]
     fn example_2() {
         let list = LinkedList::from_iter(vec![0]);
         assert_eq!(0, Solution::get_decimal_value(list.head));
     }
 
+    #[test]
     fn example_3() {
         let list = LinkedList::from_iter(vec![1]);
         assert_eq!(1, Solution::get_decimal_value(list.head));
     }
 
+    #[test]
     fn example_4() {
         let list = LinkedList::from_iter(vec![1, 0, 0, 1, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0]);
         assert_eq!(18880, Solution::get_decimal_value(list.head));
     }
 
+    #[test]
     fn example_5() {
         let list = LinkedList::from_iter(vec![0, 0]);
         assert_eq!(0, Solution::get_decimal_value(list.head));
