@@ -28,20 +28,6 @@ pub fn insert_ordered(
     }
 }
 
-// Definition for singly-linked list.
-#[derive(PartialEq, Eq, Clone, Debug)]
-pub struct ListNode {
-    pub val: i32,
-    pub next: Option<Box<ListNode>>,
-}
-
-impl ListNode {
-    #[inline]
-    fn new(val: i32) -> Self {
-        ListNode { next: None, val }
-    }
-}
-
 impl FromIterator<i32> for List {
     fn from_iter<I: IntoIterator<Item = i32>>(iterable: I) -> Self {
         let mut head = None;
@@ -53,5 +39,19 @@ impl FromIterator<i32> for List {
         }
 
         List { head }
+    }
+}
+
+// Definition for singly-linked list.
+#[derive(PartialEq, Eq, Clone, Debug)]
+pub struct ListNode {
+    pub val: i32,
+    pub next: Option<Box<ListNode>>,
+}
+
+impl ListNode {
+    #[inline]
+    fn new(val: i32) -> Self {
+        ListNode { next: None, val }
     }
 }

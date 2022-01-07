@@ -1,66 +1,87 @@
 pub struct Solution;
 
+use std::collections::HashSet;
 use std::convert::TryInto;
 
 pub struct Graph {
-    adjacency_lists: Vec<Vec<usize>>,
+    num_nodes: usize,
+    adjacency_lists: Vec<HashSet<usize>>,
 }
 
 impl Graph {
-    pub fn new(n: i32, edges: Vec<Vec<i32>>) -> Self {
-        let mut adjacency_lists = vec![vec![]; n.try_into().unwrap()];
-
+    pub fn new<E, T>(n: T, edges: Vec<Vec<T>>) -> Self
+    where
+        E: std::fmt::Debug,
+        T: Copy + TryInto<usize, Error = E>,
+    {
+        let mut adjacency_lists = vec![HashSet::new(); n.try_into().unwrap()];
         for edge in edges {
             let a: usize = edge[0].try_into().unwrap();
             let b: usize = edge[1].try_into().unwrap();
-            adjacency_lists[a].push(b);
-            adjacency_lists[b].push(a);
+            adjacency_lists[a].insert(b);
+            adjacency_lists[b].insert(a);
         }
 
-        Self { adjacency_lists }
+        let num_nodes = n.try_into().unwrap();
+        Self {
+            num_nodes,
+            adjacency_lists,
+        }
     }
 
-    pub fn height_from(&self, n: usize) -> usize {
-        1 + self.adjacency_lists[n]
+    pub fn len(&self) -> usize {
+        self.num_nodes
+    }
+
+    /// Return the indices of the nodes most central to this tree
+    pub fn find_centroids<E, T>(&mut self) -> Vec<T>
+    where
+        E: std::fmt::Debug,
+        T: TryFrom<usize, Error = E>,
+    {
+        let mut leaves = self.get_leaves();
+        while self.len() > 2 {
+            leaves = self.cull(leaves);
+        }
+        leaves.into_iter().map(|n| n.try_into().unwrap()).collect()
+    }
+
+    /// Return the leaf nodes' indices
+    fn get_leaves(&self) -> Vec<usize> {
+        self.adjacency_lists
             .iter()
-            .map(|&a| self._height_from(a, n))
-            .max()
-            .unwrap_or_default()
-    }
-
-    fn _height_from(&self, n: usize, parent: usize) -> usize {
-        1 + self.adjacency_lists[n]
-            .iter()
-            .filter_map(|&a| {
-                if a == parent {
-                    None
-                } else {
-                    Some(self._height_from(a, n))
-                }
-            })
-            .max()
-            .unwrap_or_default()
-    }
-}
-
-impl Solution {
-    pub fn find_min_height_trees(n: i32, edges: Vec<Vec<i32>>) -> Vec<i32> {
-        let graph = Graph::new(n, edges);
-        let heights: Vec<usize> = (0..n.try_into().unwrap())
-            .map(|i| graph.height_from(i))
-            .collect();
-        let min_height = *heights.iter().min().unwrap();
-        heights
-            .into_iter()
             .enumerate()
-            .filter_map(|(node, height)| {
-                if height == min_height {
-                    node.try_into().ok()
+            .filter_map(|(index, neighbours)| {
+                if neighbours.len() <= 1 {
+                    Some(index)
                 } else {
                     None
                 }
             })
             .collect()
+    }
+
+    /// Remove leaves from the graph and return new leaves
+    fn cull(&mut self, leaves: Vec<usize>) -> Vec<usize> {
+        self.num_nodes -= leaves.len();
+
+        let mut new_leaves = vec![];
+        for leaf in leaves {
+            let leaf_candidate = self.adjacency_lists[leaf].drain().next().unwrap();
+            self.adjacency_lists[leaf_candidate].remove(&leaf);
+
+            if self.adjacency_lists[leaf_candidate].len() == 1 {
+                new_leaves.push(leaf_candidate);
+            }
+        }
+
+        new_leaves
+    }
+}
+
+impl Solution {
+    pub fn find_min_height_trees(n: i32, edges: Vec<Vec<i32>>) -> Vec<i32> {
+        Graph::new(n, edges).find_centroids()
     }
 }
 
@@ -101,5 +122,10 @@ mod tests {
     #[test]
     fn example_4() {
         assert_eq!(vec![0, 1], find_min_height_trees(2, vec![[0, 1]]));
+    }
+
+    #[test]
+    fn extra() {
+        assert_eq!(vec![0], find_min_height_trees(3, vec![[0, 1], [0, 2]]))
     }
 }
